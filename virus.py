@@ -124,5 +124,72 @@ class Virus():
         self.update_status()
         self.update_text()
 
+    def one_by_one(self, i, thetas, rs, color):
+        self.axes.scatter(thetas[i], rs[i], s=5, color=color)
+        if i == (len(thetas) - 1):
+            self.anim2.event_source.stop()
+            self.anim.event_source.start()
+
+
+    def chunks(self, a_list, n):
+        for i in range(0, len(a_list), n):
+            yield a_list[i:i + n]
+
+
+    def assign_symptoms(self):
+        num_mild = round(self.percent_mild * self.num_new_infected)
+        num_severe = round(self.percent_severe * self.num_new_infected)
+        # choose random subset of newly infected to have mild symptoms
+        self.mild_indices = np.random.choice(self.new_infected_indices, num_mild, replace=False)
+        # assign the rest severe symptoms, either resulting in recovery or death
+        remaining_indices = [i for i in self.new_infected_indices if i not in self.mild_indices]
+        percent_severe_recovery = 1 - (self.fatality_rate / self.percent_severe)
+        num_severe_recovery = round(percent_severe_recovery * num_severe)
+        self.severe_indices = []
+        self.death_indices = []
+        if remaining_indices:
+            self.severe_indices = np.random.choice(remaining_indices, num_severe_recovery, replace=False)
+            self.death_indices = [i for i in remaining_indices if i not in self.severe_indices]
+
+        # assign recovery/death day
+        low = self.day + self.mild_fast
+        high = self.day + self.mild_slow
+        for mild in self.mild_indices:
+            recovery_day = np.random.randint(low, high)
+            mild_theta = self.thetas[mild]
+            mild_r = self.rs[mild]
+            self.mild[recovery_day]["thetas"].append(mild_theta)
+            self.mild[recovery_day]["rs"].append(mild_r)
+        low = self.day + self.severe_fast
+        high = self.day + self.severe_slow
+        for recovery in self.severe_indices:
+            recovery_day = np.random.randint(low, high)
+            recovery_theta = self.thetas[recovery]
+            recovery_r = self.rs[recovery]
+            self.severe["recovery"][recovery_day]["thetas"].append(recovery_theta)
+            self.severe["recovery"][recovery_day]["rs"].append(recovery_r)
+        low = self.day + self.death_fast
+        high = self.day + self.death_slow
+        for death in self.death_indices:
+            death_day = np.random.randint(low, high)
+            death_theta = self.thetas[death]
+            death_r = self.rs[death]
+            self.severe["death"][death_day]["thetas"].append(death_theta)
+            self.severe["death"][death_day]["rs"].append(death_r)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Virus(COVID19_PARAMS)
 plt.show()
