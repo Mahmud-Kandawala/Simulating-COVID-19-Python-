@@ -5,11 +5,5 @@ This is a python program I created that simulates the spread of a virus, using c
 
 ## Pictures
 
-Login Screen:
-<img src = "images/home.png"> 
-
-Sign Up Screen:
-<img src = "images/signup.png"> 
-
-Task Screen (Add + Remove):
-<img src = "images/task.png"> 
+Visualization:
+<img src = "images/virus.png"> 
