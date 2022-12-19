@@ -6,4 +6,4 @@ This is a python program I created that simulates the spread of a virus, using c
 ## Pictures
 
 Visualization:
-<img src = "image/virus.png"> 
+<img src = "image/virus.png" height = 100 width = 100> 
