@@ -19,7 +19,7 @@ COVID19_PARAMS = {
     "serial_interval": 7
 }
 
-
+class Virus(): 
 
 
 
