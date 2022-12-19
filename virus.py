@@ -176,20 +176,52 @@ class Virus():
             death_r = self.rs[death]
             self.severe["death"][death_day]["thetas"].append(death_theta)
             self.severe["death"][death_day]["rs"].append(death_r)
+    def update_status(self):
+        if self.day >= self.mild_fast:
+            mild_thetas = self.mild[self.day]["thetas"]
+            mild_rs = self.mild[self.day]["rs"]
+            self.axes.scatter(mild_thetas, mild_rs, s=5, color=GREEN)
+            self.num_recovered += len(mild_thetas)
+            self.num_currently_infected -= len(mild_thetas)
+        if self.day >= self.severe_fast:
+            rec_thetas = self.severe["recovery"][self.day]["thetas"]
+            rec_rs = self.severe["recovery"][self.day]["rs"]
+            self.axes.scatter(rec_thetas, rec_rs, s=5, color=GREEN)
+            self.num_recovered += len(rec_thetas)
+            self.num_currently_infected -= len(rec_thetas)
+        if self.day >= self.death_fast:
+            death_thetas = self.severe["death"][self.day]["thetas"]
+            death_rs = self.severe["death"][self.day]["rs"]
+            self.axes.scatter(death_thetas, death_rs, s=5, color=BLACK)
+            self.num_deaths += len(death_thetas)
+            self.num_currently_infected -= len(death_thetas)
 
 
+    def update_text(self):
+        self.day_text.set_text("Day {}".format(self.day))
+        self.infected_text.set_text("Infected: {}".format(self.num_currently_infected))
+        self.deaths_text.set_text("\nDeaths: {}".format(self.num_deaths))
+        self.recovered_text.set_text("\n\nRecovered: {}".format(self.num_recovered))
 
 
+    def gen(self):
+        while self.num_deaths + self.num_recovered < self.total_num_infected:
+            yield
 
 
+    def animate(self):
+        self.anim = ani.FuncAnimation(
+            self.fig,
+            self.spread_virus,
+            frames=self.gen,
+            repeat=True)
 
 
+def main():
+    coronavirus = Virus(COVID19_PARAMS)
+    coronavirus.animate()
+    plt.show()
 
 
-
-
-
-
-
-Virus(COVID19_PARAMS)
-plt.show()
+if __name__ == "__main__":
+    main()
