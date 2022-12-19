@@ -1,4 +1,4 @@
-import matplotlib.pyplot as pit
+import matplotlib.pyplot as plt
 import matplotlib.animation as ani
 import numpy as np
 
@@ -81,3 +81,48 @@ class Virus():
         self.axes.scatter(self.thetas[0], self.rs[0], s=5, color=RED)
         self.mild[self.mild_fast]["thetas"].append(self.thetas[0])
         self.mild[self.mild_fast]["rs"].append(self.rs[0])
+
+    def spread_virus(self, i):
+        self.exposed_before = self.exposed_after
+        if self.day % self.serial_interval == 0 and self.exposed_before < 4500:
+            self.num_new_infected = round(self.r0 * self.total_num_infected)
+            self.exposed_after += round(self.num_new_infected * 1.1)
+            if self.exposed_after > 4500:
+                self.num_new_infected = round((4500 - self.exposed_before) * 0.9)
+                self.exposed_after = 4500
+            self.num_currently_infected += self.num_new_infected
+            self.total_num_infected += self.num_new_infected
+            self.new_infected_indices = list(
+                np.random.choice(
+                    range(self.exposed_before, self.exposed_after),
+                    self.num_new_infected,
+                    replace=False))
+            thetas = [self.thetas[i] for i in self.new_infected_indices]
+            rs = [self.rs[i] for i in self.new_infected_indices]
+            self.anim.event_source.stop()
+            if len(self.new_infected_indices) > 24:
+                size_list = round(len(self.new_infected_indices) / 24)
+                theta_chunks = list(self.chunks(thetas, size_list))
+                r_chunks = list(self.chunks(rs, size_list))
+                self.anim2 = ani.FuncAnimation(
+                    self.fig,
+                    self.one_by_one,
+                    interval=50,
+                    frames=len(theta_chunks),
+                    fargs=(theta_chunks, r_chunks, RED))
+            else:
+                self.anim2 = ani.FuncAnimation(
+                    self.fig,
+                    self.one_by_one,
+                    interval=50,
+                    frames=len(thetas),
+                    fargs=(thetas, rs, RED))
+            self.assign_symptoms()
+
+        self.day += 1
+
+        self.update_status()
+        self.update_text()
+
+Virus(COVID19_PARAMS)
+plt.show()
